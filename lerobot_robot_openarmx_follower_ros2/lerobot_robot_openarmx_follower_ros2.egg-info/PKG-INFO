@@ -1,0 +1,138 @@
+Metadata-Version: 2.4
+Name: lerobot_robot_openarmx_follower_ros2
+Version: 0.0.1
+Summary: A package for controlling OpenARM-X robot with VR controller in ROS2 environment.
+Author: OpenARM-X Team
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: lerobot
+Provides-Extra: dev
+Requires-Dist: pytest; extra == "dev"
+Requires-Dist: black; extra == "dev"
+Requires-Dist: mypy; extra == "dev"
+Dynamic: license-file
+Dynamic: requires-python
+
+# lerobot_robot_openarmx_follower_ros2 (Chinese Document in English)
+
+## 1. Package Overview
+
+`lerobot_robot_openarmx_follower_ros2` is the OpenArmX ROS2 adapter plugin for LeRobot.  
+Its purpose is to wrap OpenArmX ROS2 topic interfaces into the LeRobot `Robot` interface, making data collection, replay, and policy inference easier.
+
+Core functions:
+
+1. Read dual-arm joint states from `/joint_states` as observations.
+2. Publish `Float64MultiArray` joint targets to left and right controller command topics.
+3. Support multi-camera input (RGB/Depth) through ROS2 image topics.
+
+## 2. Package Structure
+
+```text
+lerobot_robot_openarmx_follower_ros2/
+├── README.md
+├── README_CN.md
+├── pyproject.toml
+├── setup.py
+└── lerobot_robot_openarmx_follower_ros2/
+    ├── __init__.py
+    ├── config_openarmx_ros2.py        # Config definitions (robot + ROS2 + cameras)
+    ├── openarmx_ros2.py               # LeRobot Robot implementation
+    ├── ros2_interface_openarmx.py     # ROS2 joint-state subscription / command publishing interface
+    └── ros2_camera.py                 # ROS2 image-topic camera implementation
+```
+
+## 3. Data Flow
+
+1. The ROS2 control system publishes `/joint_states`.
+2. This package reads joint states and builds LeRobot observations.
+3. LeRobot outputs actions (target for each joint).
+4. This package publishes actions to:
+   - `/left_forward_position_controller/commands`
+   - `/right_forward_position_controller/commands`
+5. Optional: read images from `/cam_*/color/image` and `/cam_*/depth/image` as visual observations.
+
+## 4. Installation
+
+Install from the source directory in your workspace (editable mode):
+
+```bash
+# Activate your lerobot virtual environment
+lerobot-env   # This is our shortcut command to activate the lerobot virtual environment. Because conda conflicts with local Python and may cause build failures, we do not initialize conda by default; activate only when needed.
+
+cd <your_workspace>/src/openarmx_vla/lerobot_robot_openarmx_follower_ros2
+pip install -e . --no-deps
+```
+
+## 5. Key Configurable Parameters
+
+## Robot-level config `OpenArmXRos2Config`
+
+| Parameter | Default | Description |
+|------|--------|------|
+| `skip_send_action` | `True` | If `True`, collect data only and do not send actions; if `False`, real control commands are sent |
+| `max_relative_target` | `None` | Limit per-step joint change magnitude (safety clipping) |
+| `ros2` | `OpenArmXRos2InterfaceConfig(...)` | ROS2 joint interface parameters |
+| `cameras` | 3 ROS2 cameras | Camera config dictionary (right/left/head) |
+
+## ROS2 joint interface config `OpenArmXRos2InterfaceConfig`
+
+| Parameter | Default | Description |
+|------|--------|------|
+| `namespace` | `""` | ROS2 namespace |
+| `joint_states_topic` | `/joint_states` | Joint-state input topic |
+| `left_command_topic` | `/left_forward_position_controller/commands` | Left-arm command topic |
+| `right_command_topic` | `/right_forward_position_controller/commands` | Right-arm command topic |
+| `left_joint_names` | 8 left-arm joint names | Left-arm command vector order (must match controller config) |
+| `right_joint_names` | 8 right-arm joint names | Right-arm command vector order (must match controller config) |
+
+Note: the order of `left_joint_names` / `right_joint_names` directly defines the meaning of outgoing command arrays. If it does not match the controller configuration, actions will be misaligned.
+
+## Camera config `Ros2CameraConfig`
+
+| Parameter | Default | Description |
+|------|--------|------|
+| `image_topic` | `/camera/color/image_raw` | RGB image topic |
+| `use_depth` | `False` | Whether to enable depth |
+| `depth_topic` | `/camera/depth/image_raw` | Depth image topic |
+| `fps` | Set in config | Target frame rate (used for LeRobot feature description) |
+| `width`/`height` | Set in config | Image resolution |
+| `color_mode` | `RGB` | Output color format |
+| `rotation` | `NO_ROTATION` | Image rotation |
+| `qos_reliability` | `best_effort` | QoS reliability (low latency) |
+| `queue_size` | `1` | Buffer queue length (keep latest frame) |
+
+
+## License
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License (CC BY-NC-SA 4.0).
+
+Copyright (c) 2026 Chengdu Changshu Robot Co., Ltd.
+
+For details, see [LICENSE_CN.md](LICENSE) or visit: http://creativecommons.org/licenses/by-nc-sa/4.0/
+
+## Authors
+
+- **Zhang Li**
+- Company: Chengdu Changshu Robot Co., Ltd.
+- Website: https://openarmx.com/
+
+## Version
+
+**Current Version**: 1.0.0
+
+---
+
+## Contact Us
+
+### Chengdu Changshu Robotics Co., Ltd.
+**Chengdu Changshu Robotics Co., Ltd.**
+
+| Contact | Information |
+|---------|------|
+| 📧 Email | openarmrobot@gmail.com |
+| 📱 Phone/WeChat | +86-17746530375 |
+| 🌐 Website | <https://openarmx.com/> |
+| 📍 Address | Huacheng Machinery Factory, No. 11 Xinye 8th Street, West Area, Tianjin Economic-Technological Development Area |
+| 👤 Contact Person | Mr. Wang |

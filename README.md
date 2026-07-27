@@ -335,6 +335,74 @@ Other parameters:
 - `--dataset.num_image_writer_threads_per_camera`: Number of writer threads per camera.
 - `--dataset.rename_map`: Rename observation keys.
 
+### 🖐️ 3.6 Dual O6 Dexterous-Hand Data Collection
+
+The O6 hands use separate LeRobot types and do not change the existing gripper types:
+
+```text
+Gripper: openarmx_follower_ros2 + openarmx_leader_ros2 (16 dimensions)
+Dual O6: openarmx_follower_o6_ros2 + openarmx_leader_o6_ros2 (26 dimensions)
+```
+
+Install both plugins again in the LeRobot environment after the first checkout or an update:
+
+```bash
+pip install -e ./lerobot_robot_openarmx_follower_ros2
+pip install -e ./lerobot_teleoperator_openarmx_leader_ros2
+```
+
+As with the gripper workflow, start the O6 base, VR, and glove nodes separately. VLA does not add a combined launch.
+
+#### Step 1: Start Both Arms and O6 Hands
+
+```bash
+ros2 launch openarmx_hand_bringup openarmx.bimanual.o6.launch.py \
+  control_mode:=mit \
+  robot_controller:=forward_position_controller \
+  use_fake_hardware:=false
+```
+
+#### Step 2: Start Pico Bridge
+
+```bash
+ros2 run openarmx_teleop_bridge_vr openarmx_teleop_bridge_vr_node
+```
+
+#### Step 3: Start Arm VR Control
+
+```bash
+ros2 launch openarmx_teleop_vr teleop_vr.launch.py controller_pose_mode:=hand
+```
+
+#### Step 4: Start Both HIGVR Gloves
+
+```bash
+ros2 launch openarmx_hands_hig higvr_both.launch.py
+```
+
+#### Step 5: Start HIGVR-to-O6 Conversion
+
+```bash
+ros2 launch openarmx_hands_bridge higvr_to_o6.launch.py hand:=both
+```
+
+Start the cameras separately as described in Step 4 of this chapter, then record with the O6 plugins:
+
+```bash
+HF_HUB_OFFLINE=1 lerobot-record \
+  --robot.type=openarmx_follower_o6_ros2 \
+  --teleop.type=openarmx_leader_o6_ros2 \
+  --dataset.repo_id=local/o6_task \
+  --dataset.single_task="your task" \
+  --dataset.num_episodes=70 \
+  --dataset.push_to_hub=false \
+  --display_data=true
+```
+
+For policy inference, start only the arm/O6 base and cameras. Do not start VR, HIGVR, or the conversion node, so no other process publishes competing commands. Then run inference with `--robot.type=openarmx_follower_o6_ros2`,
+`--robot.skip_send_action=false`, and a matching 26-dimensional O6 policy. Existing
+16-dimensional gripper policies are not compatible with O6.
+
 ---
 
 ## 🧠 4. ACT Training Workflow (User High-Performance PC/Server)

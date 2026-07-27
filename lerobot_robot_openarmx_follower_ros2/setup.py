@@ -42,4 +42,13 @@ setuptools.setup(
         'rclpy',
         'numpy>=1.21,<2.0'
     ],
+    entry_points={
+        'lerobot.robots': [
+            'openarmx_follower_ros2 = '
+            'lerobot_robot_openarmx_follower_ros2.config_openarmx_ros2:OpenArmXRos2Config',
+            'openarmx_follower_o6_ros2 = '
+            'lerobot_robot_openarmx_follower_ros2.config_openarmx_o6_ros2:'
+            'OpenArmXO6Ros2Config',
+        ],
+    },
 )

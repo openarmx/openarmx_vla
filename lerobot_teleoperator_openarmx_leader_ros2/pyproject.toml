@@ -32,3 +32,7 @@ package-dir = {"" = "."}
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["lerobot_teleoperator_openarmx_leader_ros2*"]
+
+[project.entry-points."lerobot.teleoperators"]
+openarmx_leader_ros2 = "lerobot_teleoperator_openarmx_leader_ros2.config_openarmx_ros2:OpenArmXRos2TeleopConfig"
+openarmx_leader_o6_ros2 = "lerobot_teleoperator_openarmx_leader_ros2.config_openarmx_o6_ros2:OpenArmXO6Ros2TeleopConfig"

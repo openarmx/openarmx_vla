@@ -1,0 +1,152 @@
+Metadata-Version: 2.4
+Name: lerobot_teleoperator_openarmx_leader_ros2
+Version: 0.0.1
+Summary: LeRobot teleoperator plugin for OpenArmX that consumes ROS 2 VR topics and outputs joint position actions.
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: lerobot
+Requires-Dist: rclpy
+Dynamic: license-file
+Dynamic: requires-python
+
+# lerobot_teleoperator_openarmx_leader_ros2 Documentation
+
+## 1. Package Overview
+
+`lerobot_teleoperator_openarmx_leader_ros2` is the OpenArmX Leader-side teleoperation plugin for LeRobot.  
+It subscribes to ROS2 joint-command topics in the OpenArmX VR pipeline and converts them into a LeRobot-standard action dictionary (`*.pos`).
+
+Core functions:
+
+1. Subscribe to left and right arm `Float64MultiArray` command inputs.
+2. Map by joint order into LeRobot action keys (for example, `openarmx_left_joint1.pos`).
+3. Provide `get_action()` for the LeRobot control loop, without actively publishing robot control commands.
+
+## 2. Package Structure
+
+```text
+lerobot_teleoperator_openarmx_leader_ros2/
+├── README.md
+├── README_CN.md
+├── pyproject.toml
+└── lerobot_teleoperator_openarmx_leader_ros2/
+    ├── __init__.py
+    ├── config_openarmx_ros2.py      # Config definitions (ROS2 topics + joint order)
+    ├── openarmx_ros2.py             # LeRobot Teleoperator implementation
+    └── ros2_interface_openarmx.py   # ROS2 subscriber interface (commands/joint states/grip)
+```
+
+## 3. Data Flow
+
+1. The upstream teleop node publishes left and right target joint arrays (usually `*_commands_original`).
+2. This package subscribes to both topics and caches the latest commands.
+3. When `get_action()` is called, it outputs a LeRobot-format action dictionary.
+4. If no command has been received, it falls back to current `/joint_states` positions as actions (hold still).
+5. It also subscribes to `/pico_left_controller/grip` and `/pico_right_controller/grip` for human intervention event detection.
+
+## 4. Installation
+
+Install in editable mode from your workspace source directory:
+
+```bash
+# Activate your lerobot virtual environment
+lerobot-env   # This is our shortcut command to activate the lerobot virtual environment. Because conda conflicts with local Python and may cause build failures, we do not initialize conda by default and only activate it with this shortcut when needed.
+
+cd <your_workspace>/src/openarmx_vla/lerobot_teleoperator_openarmx_leader_ros2
+pip install -e . --no-deps
+```
+
+## 5. Key Configurable Parameters
+
+## Teleoperator top-level config `OpenArmXRos2TeleopConfig`
+
+| Parameter | Default | Description |
+|------|--------|------|
+| `ros2` | `OpenArmXRos2TeleopInterfaceConfig(...)` | ROS2 subscriber interface parameters |
+
+## ROS2 subscriber interface config `OpenArmXRos2TeleopInterfaceConfig`
+
+| Parameter | Default | Description |
+|------|--------|------|
+| `namespace` | `""` | ROS2 namespace |
+| `left_command_topic` | `/left_forward_position_controller/commands_original` | Left arm input command topic |
+| `right_command_topic` | `/right_forward_position_controller/commands_original` | Right arm input command topic |
+| `left_joint_names` | 8 left-arm joint names | Left arm input array order (must match publisher side) |
+| `right_joint_names` | 8 right-arm joint names | Right arm input array order (must match publisher side) |
+
+Note: the order of `left_joint_names` / `right_joint_names` directly determines how actions are mapped to joints. If it does not match the upstream publish order, joint mapping will be wrong.
+
+## Fixed subscriptions (current implementation)
+
+The following topics are fixed in the current code (not configurable parameters):
+
+1. `/joint_states`: fallback data source when commands are missing.
+2. `/pico_left_controller/grip`: left grip for intervention detection.
+3. `/pico_right_controller/grip`: right grip for intervention detection.
+
+## 6. Minimal Usage Example
+
+```python
+from lerobot.teleoperators import make_teleoperator
+
+teleop = make_teleoperator(
+    {
+        "type": "openarmx_ros2",
+        "ros2": {
+            "left_command_topic": "/left_forward_position_controller/commands_original",
+            "right_command_topic": "/right_forward_position_controller/commands_original",
+        },
+    }
+)
+
+teleop.connect()
+action = teleop.get_action()  # dict: { "<joint>.pos": value, ... }
+events = teleop.get_teleop_events()  # includes whether there is human intervention
+teleop.disconnect()
+```
+
+## 7. Common Issues
+
+1. `get_action()` reports no data  
+First confirm the upstream is publishing `left/right_command_topic`; if not, check whether `/joint_states` exists.
+
+2. Joint mapping in actions is incorrect  
+Check whether `left_joint_names` / `right_joint_names` exactly match the upstream array order.
+
+3. Intervention detection is always False  
+Check whether `/pico_left_controller/grip` and `/pico_right_controller/grip` have data. The threshold logic is `> 0.5` as intervention.
+
+
+## License
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License (CC BY-NC-SA 4.0).
+
+Copyright (c) 2026 Chengdu Changshu Robot Co., Ltd.
+
+For details, see [LICENSE_CN.md](LICENSE) or visit: http://creativecommons.org/licenses/by-nc-sa/4.0/
+
+## Authors
+
+- **Zhang Li**
+- Company: Chengdu Changshu Robot Co., Ltd.
+- Website: https://openarmx.com/
+
+## Version
+
+**Current Version**: 1.0.0
+
+---
+
+## Contact Us
+
+### Chengdu Changshu Robot Co., Ltd.
+**Chengdu Changshu Robotics Co., Ltd.**
+
+| Contact | Information |
+|---------|------|
+| 📧 Email | openarmrobot@gmail.com |
+| 📱 Phone/WeChat | +86-17746530375 |
+| 🌐 Website | <https://openarmx.com/> |
+| 📍 Address | Huacheng Machinery Factory, No. 11 Xinye 8th Street, West Area, Tianjin Economic-Technological Development Area |
+| 👤 Contact Person | Mr. Wang |

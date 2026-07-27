@@ -1,0 +1,6 @@
+lerobot
+
+[dev]
+pytest
+black
+mypy

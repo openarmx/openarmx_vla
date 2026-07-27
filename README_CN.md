@@ -335,6 +335,73 @@ ros2 topic list | grep forward_position_controller/commands
 - `--dataset.num_image_writer_threads_per_camera`：每个相机的写入线程数。
 - `--dataset.rename_map`：重命名观测键名。
 
+### 🖐️ 3.6 双 O6 灵巧手数据采集
+
+O6 灵巧手使用独立的 LeRobot 类型，不会改变原夹爪类型：
+
+```text
+普通夹爪：openarmx_follower_ros2 + openarmx_leader_ros2（16维）
+双O6手： openarmx_follower_o6_ros2 + openarmx_leader_o6_ros2（26维）
+```
+
+首次使用或代码更新后，在 LeRobot 环境中重新安装两个插件：
+
+```bash
+pip install -e ./lerobot_robot_openarmx_follower_ros2
+pip install -e ./lerobot_teleoperator_openarmx_leader_ros2
+```
+
+与夹爪流程相同，O6 的底层、VR 和手套节点分别启动。VLA 不额外提供组合 launch。
+
+#### Step 1：启动双臂和双 O6
+
+```bash
+ros2 launch openarmx_hand_bringup openarmx.bimanual.o6.launch.py \
+  control_mode:=mit \
+  robot_controller:=forward_position_controller \
+  use_fake_hardware:=false
+```
+
+#### Step 2：启动 Pico Bridge
+
+```bash
+ros2 run openarmx_teleop_bridge_vr openarmx_teleop_bridge_vr_node
+```
+
+#### Step 3：启动双臂 VR 控制
+
+```bash
+ros2 launch openarmx_teleop_vr teleop_vr.launch.py controller_pose_mode:=hand
+```
+
+#### Step 4：启动 HIGVR 双手套
+
+```bash
+ros2 launch openarmx_hands_hig higvr_both.launch.py
+```
+
+#### Step 5：启动 HIGVR 到 O6 转换
+
+```bash
+ros2 launch openarmx_hands_bridge higvr_to_o6.launch.py hand:=both
+```
+
+相机仍按本章 Step 4 单独启动。随后使用 O6 插件录制：
+
+```bash
+HF_HUB_OFFLINE=1 lerobot-record \
+  --robot.type=openarmx_follower_o6_ros2 \
+  --teleop.type=openarmx_leader_o6_ros2 \
+  --dataset.repo_id=local/o6_task \
+  --dataset.single_task="你的任务名称" \
+  --dataset.num_episodes=70 \
+  --dataset.push_to_hub=false \
+  --display_data=true
+```
+
+推理时只启动双臂/O6 底层和相机，不启动 VR、HIGVR 及转换节点，避免多个节点同时发布控制命令。然后使用 `--robot.type=openarmx_follower_o6_ros2`、
+`--robot.skip_send_action=false` 和对应的 26 维 O6 模型执行推理。普通夹爪的16维模型不能直接用于 O6。
+
 ---
 
 ## 🧠 4. ACT 训练流程（用户高性能电脑/服务器）
