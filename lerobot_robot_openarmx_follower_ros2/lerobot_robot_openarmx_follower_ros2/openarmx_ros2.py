@@ -138,7 +138,7 @@ class OpenArmXRos2(Robot):
                 obs[cam_key] = cam.async_read(timeout_ms=300)
             except Exception as e:
                 logger.error(f"Failed to read camera {cam_key}: {e}")
-                obs[cam_key] = None
+                raise RuntimeError(f"Failed to read camera {cam_key}") from e
 
         return obs
 

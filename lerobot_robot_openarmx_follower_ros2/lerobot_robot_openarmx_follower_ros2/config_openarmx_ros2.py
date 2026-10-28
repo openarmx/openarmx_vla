@@ -87,8 +87,8 @@ class OpenArmXRos2Config(RobotConfig):
     cameras: dict[str, CameraConfig] = field(
         default_factory=lambda: {
             "cam_right": Ros2CameraConfig(
-                image_topic="/cam_right/color/image",
-                depth_topic="/cam_right/depth/image",
+                image_topic="/cam_right/color/image_raw",
+                depth_topic="/cam_right/depth/image_raw",
                 fps=15,
                 width=424,
                 height=240,
@@ -99,8 +99,8 @@ class OpenArmXRos2Config(RobotConfig):
                 queue_size=1,
             ),
             "cam_left": Ros2CameraConfig(
-                image_topic="/cam_left/color/image",
-                depth_topic="/cam_left/depth/image",
+                image_topic="/cam_left/color/image_raw",
+                depth_topic="/cam_left/depth/image_raw",
                 fps=15,
                 width=424,
                 height=240,

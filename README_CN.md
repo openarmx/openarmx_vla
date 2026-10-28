@@ -175,7 +175,7 @@ lerobot-env
 W=424; H=240; FPS=30
 HF_HUB_OFFLINE=1 lerobot-record \
   --robot.type=openarmx_follower_ros2 \
-  --robot.cameras="{cam_left: {type: ros2, image_topic: /cam_left/color/image, depth_topic: /cam_left/depth/image, use_depth: true, width: $W, height: $H, fps: $FPS}, cam_right: {type: ros2, image_topic: /cam_right/color/image, depth_topic: /cam_right/depth/image, use_depth: true, width: $W, height: $H, fps: $FPS}, cam_head: {type: ros2, image_topic: /cam_head/color/image, depth_topic: /cam_head/depth/image, use_depth: true, width: $W, height: $H, fps: $FPS}}" \
+  --robot.cameras="{cam_left: {type: ros2, image_topic: /cam_left/color/image_raw, depth_topic: /cam_left/depth/image_raw, use_depth: true, width: $W, height: $H, fps: $FPS}, cam_right: {type: ros2, image_topic: /cam_right/color/image_raw, depth_topic: /cam_right/depth/image_raw, use_depth: true, width: $W, height: $H, fps: $FPS}, cam_head: {type: ros2, image_topic: /cam_head/color/image, depth_topic: /cam_head/depth/image, use_depth: true, width: $W, height: $H, fps: $FPS}}" \
   --teleop.type=openarmx_leader_ros2 \
   --dataset.repo_id=local/你的数据名称 \
   --dataset.single_task="你执行的任务名称" \
@@ -193,7 +193,7 @@ lerobot-env
 W=424; H=240; FPS=30
 HF_HUB_OFFLINE=1 lerobot-record \
   --robot.type=openarmx_follower_ros2 \
-  --robot.cameras="{cam_left: {type: ros2, image_topic: /cam_left/color/image, depth_topic: /cam_left/depth/image, use_depth: true, width: $W, height: $H, fps: $FPS}, cam_right: {type: ros2, image_topic: /cam_right/color/image, depth_topic: /cam_right/depth/image, use_depth: true, width: $W, height: $H, fps: $FPS}, cam_head: {type: ros2, image_topic: /cam_head/color/image, depth_topic: /cam_head/depth/image, use_depth: true, width: $W, height: $H, fps: $FPS}}" \
+  --robot.cameras="{cam_left: {type: ros2, image_topic: /cam_left/color/image_raw, depth_topic: /cam_left/depth/image_raw, use_depth: true, width: $W, height: $H, fps: $FPS}, cam_right: {type: ros2, image_topic: /cam_right/color/image_raw, depth_topic: /cam_right/depth/image_raw, use_depth: true, width: $W, height: $H, fps: $FPS}, cam_head: {type: ros2, image_topic: /cam_head/color/image, depth_topic: /cam_head/depth/image, use_depth: true, width: $W, height: $H, fps: $FPS}}" \
   --teleop.type=openarmx_leader_ros2 \
   --dataset.repo_id=local/take_box \
   --dataset.single_task="take box" \
@@ -295,7 +295,7 @@ ros2 topic list | grep forward_position_controller/commands
 
 预期至少看到：
 
-- 相机话题：`/cam_left/color/image`、`/cam_right/color/image`、`/cam_head/color/image`
+- 相机话题：`/cam_left/color/image_raw`、`/cam_right/color/image_raw`、`/cam_head/color/image`
 - 关节状态：`/joint_states`
 - 遥操作输出：`/left_forward_position_controller/commands`、`/right_forward_position_controller/commands`
 
@@ -525,7 +525,7 @@ lerobot-env
 W=424; H=240; FPS=30
 HF_HUB_OFFLINE=1 lerobot-record \
   --robot.type=openarmx_follower_ros2 \
-  --robot.cameras="{cam_left: {type: ros2, image_topic: /cam_left/color/image, depth_topic: /cam_left/depth/image, use_depth: true, width: $W, height: $H, fps: $FPS}, cam_right: {type: ros2, image_topic: /cam_right/color/image, depth_topic: /cam_right/depth/image, use_depth: true, width: $W, height: $H, fps: $FPS}, cam_head: {type: ros2, image_topic: /cam_head/color/image, depth_topic: /cam_head/depth/image, use_depth: true, width: $W, height: $H, fps: $FPS}}" \
+  --robot.cameras="{cam_left: {type: ros2, image_topic: /cam_left/color/image_raw, depth_topic: /cam_left/depth/image_raw, use_depth: true, width: $W, height: $H, fps: $FPS}, cam_right: {type: ros2, image_topic: /cam_right/color/image_raw, depth_topic: /cam_right/depth/image_raw, use_depth: true, width: $W, height: $H, fps: $FPS}, cam_head: {type: ros2, image_topic: /cam_head/color/image, depth_topic: /cam_head/depth/image, use_depth: true, width: $W, height: $H, fps: $FPS}}" \
   --robot.skip_send_action=false \
   --dataset.repo_id="local/推理完成模型名称" \
   --dataset.single_task="你的任务名称" \
@@ -542,7 +542,7 @@ lerobot-env
 W=424; H=240; FPS=30
 HF_HUB_OFFLINE=1 lerobot-record \
   --robot.type=openarmx_follower_ros2 \
-  --robot.cameras="{cam_left: {type: ros2, image_topic: /cam_left/color/image, depth_topic: /cam_left/depth/image, use_depth: true, width: $W, height: $H, fps: $FPS}, cam_right: {type: ros2, image_topic: /cam_right/color/image, depth_topic: /cam_right/depth/image, use_depth: true, width: $W, height: $H, fps: $FPS}, cam_head: {type: ros2, image_topic: /cam_head/color/image, depth_topic: /cam_head/depth/image, use_depth: true, width: $W, height: $H, fps: $FPS}}" \
+  --robot.cameras="{cam_left: {type: ros2, image_topic: /cam_left/color/image_raw, depth_topic: /cam_left/depth/image_raw, use_depth: true, width: $W, height: $H, fps: $FPS}, cam_right: {type: ros2, image_topic: /cam_right/color/image_raw, depth_topic: /cam_right/depth/image_raw, use_depth: true, width: $W, height: $H, fps: $FPS}, cam_head: {type: ros2, image_topic: /cam_head/color/image, depth_topic: /cam_head/depth/image, use_depth: true, width: $W, height: $H, fps: $FPS}}" \
   --robot.skip_send_action=false \
   --dataset.repo_id=local/eval_take_box \
   --dataset.single_task="take the box" \

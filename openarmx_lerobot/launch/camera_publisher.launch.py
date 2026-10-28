@@ -375,7 +375,7 @@ def create_camera_node(
 
     # 根据相机类型确定原始话题名称和参数配置
     if normalize_camera_type(cam_type_value) == "D405":
-        # D405: RGB 集成在深度模块，原始话题是 image_rect_raw
+        # D405: RGB 集成在深度模块。当前 realsense2_camera 发布 color/image_raw。
         # D405 的 RGB 和 深度是物理同轴的，不需要软件对齐，原始深度图即已对齐
         camera_params = {
             "serial_no": serial_str,
@@ -390,10 +390,9 @@ def create_camera_node(
             "enable_accel": False,
             "pointcloud.enable": False,
         }
-        # D405 的原始 RGB 话题是 color/image_rect_raw
-        original_color_topic = f"/{name}/{name}/color/image_rect_raw"
+        original_color_topic = f"/{name}/{name}/color/image_raw"
         # D405 直接使用原始深度图（已物理对齐）
-        original_depth_topic = f"/{name}/{name}/depth/image_rect_raw"
+        original_depth_topic = f"/{name}/{name}/depth/image_raw"
     else:
         # D435/D435i: 独立 RGB 模块，原始话题是 image_raw
         camera_params = {
